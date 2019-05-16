@@ -7,11 +7,11 @@ class TransitionSamplePage extends StatefulWidget {
 }
 
 class _TransitionSamplePageState extends State<TransitionSamplePage> with TickerProviderStateMixin{
-  SVGAAnimationController animationController;
+  SVGAWidgetsAnimationController animationController;
 
   @override
   void initState() {
-    this.animationController = SVGAAnimationController(vsync: this);
+    this.animationController = SVGAWidgetsAnimationController(vsync: this);
     this.loadAnimation();
     super.initState();
   }
@@ -37,14 +37,12 @@ class _TransitionSamplePageState extends State<TransitionSamplePage> with Ticker
       appBar: AppBar(
         title: Text('Transition sample'),
       ),
-      body: Column(
-        children: <Widget>[
-          Container(
-            height: 1624 / 3,
-            width: 750 / 3,
-            child: SVGAImage(this.animationController),
-          ),
-        ],
+      body: Center(
+        child: Container(
+          height: 1624 / 3,
+          width: 750 / 3,
+          child: SVGAWidgets(animationController)
+        ),
       ),
 
     );
