@@ -513,6 +513,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
         top: top * yScale,
         child: Container(
           color: fillColor,
+          child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
         ),
       );
 //      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${container}');
