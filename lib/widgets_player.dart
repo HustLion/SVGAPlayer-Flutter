@@ -481,7 +481,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
         // from object space to flutter screen space
         width *= frameItem.transform.a;
         height *= frameItem.transform.d;
-        left += frameItem.transform.tx;
+        left += frameItem.transform.tx / frameItem.transform.a;
         top += frameItem.transform.ty / frameItem.transform.d;
 //        var matrix = Float64List.fromList([
 //          frameItem.transform.a,
