@@ -439,10 +439,10 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
             0.0,
             1.0
           ].toList());
-//          container = m.Transform(
-//            transform: Matrix4.fromFloat64List(shapeMatrix),
-//            child: container,
-//          );
+          container = m.Transform(
+            transform: Matrix4.fromFloat64List(shapeMatrix),
+            child: container,
+          );
         }
         if (frameItem.hasClipPath()) {
           // TODO get another clipPath
@@ -475,10 +475,10 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
           0.0,
           1.0
         ].toList());
-//        finalStack = m.Transform(
-//          transform: Matrix4.fromFloat64List(matrix),
-//          child: finalStack,
-//        );
+        finalStack = m.Transform(
+          transform: Matrix4.fromFloat64List(matrix),
+          child: finalStack,
+        );
       }
     });
     return finalStack;
