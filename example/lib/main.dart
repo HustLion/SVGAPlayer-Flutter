@@ -25,8 +25,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   void loadAnimation() async {
-    final videoItem = await SVGAParser.shared.decodeFromURL(
-        "https://github.com/yyued/SVGA-Samples/blob/master/kingset?raw=true");
+//    final videoItem = await SVGAParser.shared.decodeFromURL(
+//        "https://github.com/yyued/SVGA-Samples/blob/master/kingset?raw=true");
+    final videoItem = await SVGAParser.shared.decodeFromAssets('assets/angel.svga');
     this.animationController.videoItem = videoItem;
     this
         .animationController
@@ -36,8 +37,15 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SVGAImage(this.animationController),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('SVGA sample'),
+        ),
+        body: Container(
+          child: SVGAImage(this.animationController),
+        ),
+      ),
     );
   }
 }
