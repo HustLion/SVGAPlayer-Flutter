@@ -319,12 +319,12 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
     switch (this.fit) {
       case BoxFit.contain:
         if (imageWidth / imageHeight >= size.width / size.height) {
-          child = m.Transform.translate(offset: m.Offset(
-            0.0,
-            (size.height - (imageHeight * (size.width / imageWidth))) / 2.0,
-          ),
-            child: child,
-          );
+//          child = m.Transform.translate(offset: m.Offset(
+//            0.0,
+//            (size.height - (imageHeight * (size.width / imageWidth))) / 2.0,
+//          ),
+//            child: child,
+//          );
           child = m.Transform.scale(scale: size.width / imageWidth,
             child: child,
           );
@@ -410,8 +410,10 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       if (shapeCache[sprite.imageKey] == null) shapeCache[sprite.imageKey] = [];
       final frameItem = sprite.frames[this.currentFrame];
 //      print('painting frame ${currentFrame} for ${sprite.imageKey}');
+      bool isModifyingCachedShapes = false;
       if (currentFrame > 0 && theStackElements.length > 0) {
         frameItem.shapes = shapeCache[sprite.imageKey];
+        isModifyingCachedShapes = true;
       } else {
         shapeCache[sprite.imageKey] = frameItem.shapes;
       }
@@ -421,6 +423,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       double height = 0;
       double left = 0;
       double top = 0;
+      Matrix4 matrix4 = Matrix4.identity();
       Color fillColor;
       frameItem.shapes.forEach((ShapeEntity shape) {
         final path = this.buildPath(shape);
@@ -468,10 +471,11 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
 //        );
       });
       if (frameItem.hasTransform()) {
+        // from object space to flutter screen space
         width *= frameItem.transform.a;
         height *= frameItem.transform.d;
         left += frameItem.transform.tx;
-        top += frameItem.transform.ty;
+        top += frameItem.transform.ty / frameItem.transform.d;
 //        var matrix = Float64List.fromList([
 //          frameItem.transform.a,
 //          frameItem.transform.b,
@@ -504,6 +508,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
           color: fillColor,
         ),
       );
+      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${container}');
       theStackElements.add(container);
     });
     finalStack = Stack(
