@@ -130,6 +130,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
   void initState() {
     super.initState();
     debugPrint(widget.treeData.toString());
+    scaleToFit();
   }
 
   @override
@@ -138,7 +139,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       height: treeData.params.viewBoxHeight,
       width: treeData.params.viewBoxWidth,
       color: m.Colors.green,
-      child: scaleToFit(child: drawShape()),
+      child: drawShape(),
     );
   }
   static const _validMethods = 'MLHVCSQRZmlhvcsqrz';
@@ -308,6 +309,8 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
             (fill.b * 255).toInt(),
           );
   }
+  double xScale = 1;
+  double yScale = 1;
   Widget scaleToFit({Widget child, Canvas canvas}) {
     Size size = m.Size(widget.width, widget.height);
     final double imageWidth = treeData.params.viewBoxWidth.toDouble();
@@ -325,19 +328,23 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
 //          ),
 //            child: child,
 //          );
-          child = m.Transform.scale(scale: size.width / imageWidth,
-            child: child,
-          );
+        xScale = size.width / imageWidth;
+        yScale = xScale;
+//          child = m.Transform.scale(scale: size.width / imageWidth,
+//            child: child,
+//          );
         } else {
-          child = m.Transform.translate(offset: m.Offset(
-            (size.width - (imageWidth * (size.height / imageHeight))) / 2.0,
-            0.0,
-          ),
-            child: child,
-          );
-          child = m.Transform.scale(scale: size.height / imageHeight,
-            child: child,
-          );
+          xScale = size.height / imageHeight;
+          yScale = xScale;
+//          child = m.Transform.translate(offset: m.Offset(
+//            (size.width - (imageWidth * (size.height / imageHeight))) / 2.0,
+//            0.0,
+//          ),
+//            child: child,
+//          );
+//          child = m.Transform.scale(scale: size.height / imageHeight,
+//            child: child,
+//          );
         }
         break;
       case BoxFit.cover:
@@ -500,15 +507,15 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
 //        );
       }
       Widget container = Positioned(
-        width: width,
-        height: height,
-        left: left,
-        top: top,
+        width: width * xScale,
+        height: height * yScale,
+        left: left * xScale,
+        top: top * yScale,
         child: Container(
           color: fillColor,
         ),
       );
-      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${container}');
+//      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${container}');
       theStackElements.add(container);
     });
     finalStack = Stack(
