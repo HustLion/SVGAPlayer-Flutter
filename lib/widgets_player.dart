@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'proto/svga.pbserver.dart';
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 class SVGAWidgets extends StatefulWidget {
@@ -103,9 +104,14 @@ class SVGAWidgetsTree extends StatefulWidget {
 }
 
 class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
+  MovieEntity get treeData => widget.treeData;
+
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: treeData.params.viewBoxHeight,
+      width: treeData.params.viewBoxWidth,
+      color: Colors.blueAccent,
       child: Text('hello world'),
     );
   }
