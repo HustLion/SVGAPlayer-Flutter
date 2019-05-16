@@ -73,6 +73,7 @@ class _SVGAWidgetsState extends State<SVGAWidgets> {
       }
     });
   }
+  Map<String, List<ShapeEntity>> shapeCache = {};
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +89,7 @@ class _SVGAWidgetsState extends State<SVGAWidgets> {
       fit: this.widget.fit,
       width: widget.width,
       height: widget.height,
+      shapeCache: shapeCache,
     );
     return CustomPaint(
       painter: new SVGAWidgetsPainter(
@@ -112,7 +114,8 @@ class SVGAWidgetsTree extends StatefulWidget {
   final BoxFit fit;
   final double width;
   final double height;
-  SVGAWidgetsTree({this.treeData, this.currentFrame, this.fit, this.width, this.height});
+  final Map<String, List<ShapeEntity>> shapeCache;
+  SVGAWidgetsTree({this.treeData, this.currentFrame, this.fit, this.width, this.height, this.shapeCache});
 
   @override
   _SVGAWidgetsTreeState createState() => _SVGAWidgetsTreeState();
@@ -396,6 +399,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
     }
     return child;
   }
+  Map<String, List<ShapeEntity>> get shapeCache => widget.shapeCache;
   Widget drawShape() {
     Widget finalStack;
     List<Widget> theStackElements = [];
@@ -403,8 +407,14 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       if (sprite.imageKey != null &&
           treeData.dynamicItem.dynamicHidden[sprite.imageKey] == true)
         return;
+      if (shapeCache[sprite.imageKey] == null) shapeCache[sprite.imageKey] = [];
       final frameItem = sprite.frames[this.currentFrame];
-      print('painting frame ${currentFrame} for ${sprite.imageKey}');
+//      print('painting frame ${currentFrame} for ${sprite.imageKey}');
+      if (currentFrame > 0 && theStackElements.length > 0) {
+        frameItem.shapes = shapeCache[sprite.imageKey];
+      } else {
+        shapeCache[sprite.imageKey] = frameItem.shapes;
+      }
       if (frameItem.shapes == null || frameItem.shapes.length == 0) return;
 
       double width = 0;
