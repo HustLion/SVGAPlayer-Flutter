@@ -76,6 +76,7 @@ class _SVGAWidgetsState extends State<SVGAWidgets> {
     }
     final needsClear = this._animationController._canvasNeedsClear;
     this._animationController._canvasNeedsClear = false;
+    return SVGAWidgetsTree(treeData: _animationController.videoItem,);
     return CustomPaint(
       painter: new SVGAWidgetsPainter(
         this._animationController.videoItem,
@@ -91,6 +92,25 @@ class _SVGAWidgetsState extends State<SVGAWidgets> {
     );
   }
 }
+
+
+class SVGAWidgetsTree extends StatefulWidget {
+  final MovieEntity treeData;
+  SVGAWidgetsTree({this.treeData});
+
+  @override
+  _SVGAWidgetsTreeState createState() => _SVGAWidgetsTreeState();
+}
+
+class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text('hello world'),
+    );
+  }
+}
+
 
 class SVGAWidgetsPainter extends CustomPainter {
   final MovieEntity videoItem;
