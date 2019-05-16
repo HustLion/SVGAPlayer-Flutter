@@ -77,7 +77,11 @@ class _SVGAWidgetsState extends State<SVGAWidgets> {
     }
     final needsClear = this._animationController._canvasNeedsClear;
     this._animationController._canvasNeedsClear = false;
-    return SVGAWidgetsTree(treeData: _animationController.videoItem,);
+    return SVGAWidgetsTree(
+      treeData: _animationController.videoItem,
+      currentFrame: SVGAWidgetsPainter.calculateCurrentFrame(this._animationController.videoItem,
+          this._animationController.value),
+    );
     return CustomPaint(
       painter: new SVGAWidgetsPainter(
         this._animationController.videoItem,
@@ -97,7 +101,8 @@ class _SVGAWidgetsState extends State<SVGAWidgets> {
 
 class SVGAWidgetsTree extends StatefulWidget {
   final MovieEntity treeData;
-  SVGAWidgetsTree({this.treeData});
+  final int currentFrame;
+  SVGAWidgetsTree({this.treeData, this.currentFrame});
 
   @override
   _SVGAWidgetsTreeState createState() => _SVGAWidgetsTreeState();
@@ -105,15 +110,232 @@ class SVGAWidgetsTree extends StatefulWidget {
 
 class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
   MovieEntity get treeData => widget.treeData;
+  int get currentFrame => widget.currentFrame;
+
+  @override
+  void initState() {
+    super.initState();
+    print(widget.treeData.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: treeData.params.viewBoxHeight,
       width: treeData.params.viewBoxWidth,
-      color: Colors.blueAccent,
-      child: Text('hello world'),
+//      color: Colors.blueAccent,
+      child: Stack(
+        children: drawShape(),
+      ),
     );
+  }
+  static const _validMethods = 'MLHVCSQRZmlhvcsqrz';
+  Path buildDPath(String argD, {Path path}) {
+    if (treeData.pathCache[argD] != null) {
+      return treeData.pathCache[argD];
+    }
+    if (path == null) {
+      path = Path();
+    }
+    final d = argD.replaceAllMapped(RegExp('([a-zA-Z])'), (match) {
+      return "|||${match.group(1)} ";
+    }).replaceAll(RegExp(","), " ");
+    var currentPointX = 0.0;
+    var currentPointY = 0.0;
+    double currentPointX1;
+    double currentPointY1;
+    double currentPointX2;
+    double currentPointY2;
+    d.split("|||").forEach((segment) {
+      if (segment.length == 0) {
+        return;
+      }
+      final firstLetter = segment.substring(0, 1);
+      if (_validMethods.indexOf(firstLetter) >= 0) {
+        final args = segment.substring(1).trim().split(" ");
+        if (firstLetter == "M") {
+          currentPointX = double.parse(args[0]);
+          currentPointY = double.parse(args[1]);
+          path.moveTo(currentPointX, currentPointY);
+        } else if (firstLetter == "m") {
+          currentPointX += double.parse(args[0]);
+          currentPointY += double.parse(args[1]);
+          path.moveTo(currentPointX, currentPointY);
+        } else if (firstLetter == "L") {
+          currentPointX = double.parse(args[0]);
+          currentPointY = double.parse(args[1]);
+          path.lineTo(currentPointX, currentPointY);
+        } else if (firstLetter == "l") {
+          currentPointX += double.parse(args[0]);
+          currentPointY += double.parse(args[1]);
+          path.lineTo(currentPointX, currentPointY);
+        } else if (firstLetter == "H") {
+          currentPointX = double.parse(args[0]);
+          path.lineTo(currentPointX, currentPointY);
+        } else if (firstLetter == "h") {
+          currentPointX += double.parse(args[0]);
+          path.lineTo(currentPointX, currentPointY);
+        } else if (firstLetter == "V") {
+          currentPointY = double.parse(args[0]);
+          path.lineTo(currentPointX, currentPointY);
+        } else if (firstLetter == "v") {
+          currentPointY += double.parse(args[0]);
+          path.lineTo(currentPointX, currentPointY);
+        } else if (firstLetter == "C") {
+          currentPointX1 = double.parse(args[0]);
+          currentPointY1 = double.parse(args[1]);
+          currentPointX2 = double.parse(args[2]);
+          currentPointY2 = double.parse(args[3]);
+          currentPointX = double.parse(args[4]);
+          currentPointY = double.parse(args[5]);
+          path.cubicTo(currentPointX1, currentPointY1, currentPointX2,
+              currentPointY2, currentPointX, currentPointY);
+        } else if (firstLetter == "c") {
+          currentPointX1 = currentPointX + double.parse(args[0]);
+          currentPointY1 = currentPointY + double.parse(args[1]);
+          currentPointX2 = currentPointX + double.parse(args[2]);
+          currentPointY2 = currentPointY + double.parse(args[3]);
+          currentPointX += double.parse(args[4]);
+          currentPointY += double.parse(args[5]);
+          path.cubicTo(currentPointX1, currentPointY1, currentPointX2,
+              currentPointY2, currentPointX, currentPointY);
+        } else if (firstLetter == "S") {
+          if (currentPointX1 != null &&
+              currentPointY1 != null &&
+              currentPointX2 != null &&
+              currentPointY2 != null) {
+            currentPointX1 = currentPointX - currentPointX2 + currentPointX;
+            currentPointY1 = currentPointY - currentPointY2 + currentPointY;
+            currentPointX2 = double.parse(args[0]);
+            currentPointY2 = double.parse(args[1]);
+            currentPointX = double.parse(args[2]);
+            currentPointY = double.parse(args[3]);
+            path.cubicTo(currentPointX1, currentPointY1, currentPointX2,
+                currentPointY2, currentPointX, currentPointY);
+          } else {
+            currentPointX1 = double.parse(args[0]);
+            currentPointY1 = double.parse(args[1]);
+            currentPointX = double.parse(args[2]);
+            currentPointY = double.parse(args[3]);
+            path.quadraticBezierTo(
+                currentPointX1, currentPointY1, currentPointX, currentPointY);
+          }
+        } else if (firstLetter == "s") {
+          if (currentPointX1 != null &&
+              currentPointY1 != null &&
+              currentPointX2 != null &&
+              currentPointY2 != null) {
+            currentPointX1 = currentPointX - currentPointX2 + currentPointX;
+            currentPointY1 = currentPointY - currentPointY2 + currentPointY;
+            currentPointX2 = currentPointX + double.parse(args[0]);
+            currentPointY2 = currentPointY + double.parse(args[1]);
+            currentPointX += double.parse(args[2]);
+            currentPointY += double.parse(args[3]);
+            path.cubicTo(currentPointX1, currentPointY1, currentPointX2,
+                currentPointY2, currentPointX, currentPointY);
+          } else {
+            currentPointX1 = currentPointX + double.parse(args[0]);
+            currentPointY1 = currentPointY + double.parse(args[1]);
+            currentPointX += double.parse(args[2]);
+            currentPointY += double.parse(args[3]);
+            path.quadraticBezierTo(
+                currentPointX1, currentPointY1, currentPointX, currentPointY);
+          }
+        } else if (firstLetter == "Q") {
+          currentPointX1 = double.parse(args[0]);
+          currentPointY1 = double.parse(args[1]);
+          currentPointX = double.parse(args[2]);
+          currentPointY = double.parse(args[3]);
+          path.quadraticBezierTo(
+              currentPointX1, currentPointY1, currentPointX, currentPointY);
+        } else if (firstLetter == "q") {
+          currentPointX1 = currentPointX + double.parse(args[0]);
+          currentPointY1 = currentPointY + double.parse(args[1]);
+          currentPointX += double.parse(args[2]);
+          currentPointY += double.parse(args[3]);
+          path.quadraticBezierTo(
+              currentPointX1, currentPointY1, currentPointX, currentPointY);
+        } else if (firstLetter == "Z" || firstLetter == "z") {
+          path.close();
+        }
+      }
+      treeData.pathCache[argD] = path;
+    });
+    return path;
+  }
+  Path buildPath(ShapeEntity shape) {
+    final path = Path();
+    if (shape.type == ShapeEntity_ShapeType.SHAPE) {
+      final args = shape.shape;
+      final argD = args.d ?? "";
+      return this.buildDPath(argD, path: path);
+    } else if (shape.type == ShapeEntity_ShapeType.ELLIPSE) {
+      final args = shape.ellipse;
+      final xv = args.x ?? 0.0;
+      final yv = args.y ?? 0.0;
+      final rxv = args.radiusX ?? 0.0;
+      final ryv = args.radiusY ?? 0.0;
+      path.addOval(Rect.fromLTWH(xv - rxv, yv - ryv, rxv * 2, ryv * 2));
+    } else if (shape.type == ShapeEntity_ShapeType.RECT) {
+      final args = shape.rect;
+      final xv = args.x ?? 0.0;
+      final yv = args.y ?? 0.0;
+      final wv = args.width ?? 0.0;
+      final hv = args.height ?? 0.0;
+      final crv = args.cornerRadius ?? 0.0;
+      path.addRRect(RRect.fromRectAndRadius(
+          Rect.fromLTWH(xv, yv, wv, hv), Radius.circular(crv)));
+    }
+    return path;
+  }
+  Color colorFromFill(fill, alpha) {
+    return Color.fromARGB(
+            (fill.a * alpha * 255).toInt(),
+            (fill.r * 255).toInt(),
+            (fill.g * 255).toInt(),
+            (fill.b * 255).toInt(),
+          );
+  }
+  List<Widget> drawShape() {
+    List<Widget> theStackElements = [];
+    treeData.sprites.forEach((sprite) {
+      if (sprite.imageKey != null &&
+          treeData.dynamicItem.dynamicHidden[sprite.imageKey] == true)
+        return;
+      final frameItem = sprite.frames[this.currentFrame];
+//      print('painting frame ${currentFrame}');
+      if (frameItem.shapes == null || frameItem.shapes.length == 0) return;
+//      canvas.save();
+
+      if (frameItem.hasTransform()) {
+        // TODO calculate transform
+      }
+      frameItem.shapes.forEach((ShapeEntity shape) {
+        final path = this.buildPath(shape);
+        var container = Container(
+          width: shape.rect.width/3,
+          height: shape.rect.height/3,
+          color: colorFromFill(shape.styles.fill, frameItem.alpha),
+        );
+        theStackElements.add(container);
+
+        if (shape.hasTransform() || frameItem.hasClipPath()) {
+//          canvas.save();
+        }
+        if (shape.hasTransform()) {
+          // TODO do shape transform
+        }
+        if (frameItem.hasClipPath()) {
+          // TODO get another clipPath
+//          canvas.clipPath(this.buildDPath(frameItem.clipPath));
+        }
+        if (shape.hasTransform() || frameItem.hasClipPath()) {
+//          canvas.restore();
+        }
+      });
+//      canvas.restore();
+    });
+    return theStackElements;
   }
 }
 
