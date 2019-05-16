@@ -126,7 +126,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
   @override
   void initState() {
     super.initState();
-    print(widget.treeData.toString());
+    debugPrint(widget.treeData.toString());
   }
 
   @override
@@ -404,83 +404,101 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
           treeData.dynamicItem.dynamicHidden[sprite.imageKey] == true)
         return;
       final frameItem = sprite.frames[this.currentFrame];
-//      print('painting frame ${currentFrame}');
+      print('painting frame ${currentFrame} for ${sprite.imageKey}');
       if (frameItem.shapes == null || frameItem.shapes.length == 0) return;
-//      canvas.save();
 
+      double width = 0;
+      double height = 0;
+      double left = 0;
+      double top = 0;
+      Color fillColor;
       frameItem.shapes.forEach((ShapeEntity shape) {
         final path = this.buildPath(shape);
-        Widget container = Container(
-          width: shape.rect.width,
-          height: shape.rect.height,
-          color: colorFromFill(shape.styles.fill, frameItem.alpha),
-        );
-
-        if (shape.hasTransform() || frameItem.hasClipPath()) {
-//          canvas.save();
-        }
+        fillColor = colorFromFill(shape.styles.fill, frameItem.alpha);
+        width = shape.rect.width;
+        height = shape.rect.height;
+        left = shape.rect.x;
+        top = shape.rect.y;
         if (shape.hasTransform()) {
-          // TODO do shape transform
-          var shapeMatrix = Float64List.fromList([
-            shape.transform.a,
-            shape.transform.b,
-            0.0,
-            0.0,
-            shape.transform.c,
-            shape.transform.d,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-            0.0,
-            shape.transform.tx,
-            shape.transform.ty,
-            0.0,
-            1.0
-          ].toList());
-          container = m.Transform(
-            transform: Matrix4.fromFloat64List(shapeMatrix),
-            child: container,
-          );
+          width *= shape.transform.a;
+          height *= shape.transform.d;
+          left += shape.transform.tx;
+          top += shape.transform.ty;
+//          var shapeMatrix = Float64List.fromList([
+//            shape.transform.a,
+//            shape.transform.b,
+//            0.0,
+//            0.0,
+//            shape.transform.c,
+//            shape.transform.d,
+//            0.0,
+//            0.0,
+//            0.0,
+//            0.0,
+//            1.0,
+//            0.0,
+//            shape.transform.tx,
+//            shape.transform.ty,
+//            0.0,
+//            1.0
+//          ].toList());
+//          container = m.Transform(
+//            transform: Matrix4.fromFloat64List(shapeMatrix),
+//            child: container,
+//          );
         }
         if (frameItem.hasClipPath()) {
           // TODO get another clipPath
 //          canvas.clipPath(this.buildDPath(frameItem.clipPath));
         }
-        if (shape.hasTransform() || frameItem.hasClipPath()) {
-//          canvas.restore();
-        }
-        theStackElements.add(container);
+//        container = Positioned(
+//          left: -shape.rect.x,
+//          top: -shape.rect.y,
+//          child: container,
+//        );
       });
-      finalStack = Stack(
-        children: theStackElements,
-      );
       if (frameItem.hasTransform()) {
-        var matrix = Float64List.fromList([
-          frameItem.transform.a,
-          frameItem.transform.b,
-          0.0,
-          0.0,
-          frameItem.transform.c,
-          frameItem.transform.d,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          1.0,
-          0.0,
-          frameItem.transform.tx,
-          frameItem.transform.ty,
-          0.0,
-          1.0
-        ].toList());
-        finalStack = m.Transform(
-          transform: Matrix4.fromFloat64List(matrix),
-          child: finalStack,
-        );
+        width *= frameItem.transform.a;
+        height *= frameItem.transform.d;
+        left += frameItem.transform.tx;
+        top += frameItem.transform.ty;
+//        var matrix = Float64List.fromList([
+//          frameItem.transform.a,
+//          frameItem.transform.b,
+//          0.0,
+//          0.0,
+//          frameItem.transform.c,
+//          frameItem.transform.d,
+//          0.0,
+//          0.0,
+//          0.0,
+//          0.0,
+//          1.0,
+//          0.0,
+//          frameItem.transform.tx,
+//          frameItem.transform.ty,
+//          0.0,
+//          1.0
+//        ].toList());
+//        finalStack = m.Transform(
+//          transform: Matrix4.fromFloat64List(matrix),
+//          child: finalStack,
+//        );
       }
+      Widget container = Positioned(
+        width: width,
+        height: height,
+        left: left,
+        top: top,
+        child: Container(
+          color: fillColor,
+        ),
+      );
+      theStackElements.add(container);
     });
+    finalStack = Stack(
+      children: theStackElements,
+    );
     return finalStack;
   }
 }
