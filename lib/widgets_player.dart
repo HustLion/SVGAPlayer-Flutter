@@ -11,11 +11,15 @@ class SVGAWidgets extends StatefulWidget {
   final SVGAWidgetsAnimationController _controller;
   final BoxFit fit;
   final bool clearsAfterStop;
+  final double width;
+  final double height;
 
   SVGAWidgets(
       this._controller, {
         this.fit = BoxFit.contain,
         this.clearsAfterStop = true,
+        this.width = 300,
+        this.height = 300,
       });
 
   @override
@@ -81,6 +85,9 @@ class _SVGAWidgetsState extends State<SVGAWidgets> {
       treeData: _animationController.videoItem,
       currentFrame: SVGAWidgetsPainter.calculateCurrentFrame(this._animationController.videoItem,
           this._animationController.value),
+      fit: this.widget.fit,
+      width: widget.width,
+      height: widget.height,
     );
     return CustomPaint(
       painter: new SVGAWidgetsPainter(
@@ -102,7 +109,10 @@ class _SVGAWidgetsState extends State<SVGAWidgets> {
 class SVGAWidgetsTree extends StatefulWidget {
   final MovieEntity treeData;
   final int currentFrame;
-  SVGAWidgetsTree({this.treeData, this.currentFrame});
+  final BoxFit fit;
+  final double width;
+  final double height;
+  SVGAWidgetsTree({this.treeData, this.currentFrame, this.fit, this.width, this.height});
 
   @override
   _SVGAWidgetsTreeState createState() => _SVGAWidgetsTreeState();
@@ -111,6 +121,7 @@ class SVGAWidgetsTree extends StatefulWidget {
 class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
   MovieEntity get treeData => widget.treeData;
   int get currentFrame => widget.currentFrame;
+  BoxFit get fit => widget.fit;
 
   @override
   void initState() {
@@ -124,7 +135,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       height: treeData.params.viewBoxHeight,
       width: treeData.params.viewBoxWidth,
 //      color: Colors.blueAccent,
-      child: drawShape(),
+      child: scaleToFit(child: drawShape()),
     );
   }
   static const _validMethods = 'MLHVCSQRZmlhvcsqrz';
@@ -294,6 +305,97 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
             (fill.b * 255).toInt(),
           );
   }
+  Widget scaleToFit({Widget child, Canvas canvas}) {
+    Size size = m.Size(widget.width, widget.height);
+    final double imageWidth = treeData.params.viewBoxWidth.toDouble();
+    final double imageHeight = treeData.params.viewBoxHeight.toDouble();
+    if (imageWidth == 0.0 ||
+        imageHeight == 0.0 ||
+        size.width == 0.0 ||
+        size.height == 0.0) return Container();
+    switch (this.fit) {
+      case BoxFit.contain:
+        if (imageWidth / imageHeight >= size.width / size.height) {
+          child = m.Transform.translate(offset: m.Offset(
+            0.0,
+            (size.height - (imageHeight * (size.width / imageWidth))) / 2.0,
+          ),
+            child: child,
+          );
+          child = m.Transform.scale(scale: size.width / imageWidth,
+            child: child,
+          );
+        } else {
+          child = m.Transform.translate(offset: m.Offset(
+            (size.width - (imageWidth * (size.height / imageHeight))) / 2.0,
+            0.0,
+          ),
+            child: child,
+          );
+          child = m.Transform.scale(scale: size.height / imageHeight,
+            child: child,
+          );
+        }
+        break;
+      case BoxFit.cover:
+        if (imageWidth / imageHeight <= size.width / size.height) {
+          canvas.translate(
+            0.0,
+            (size.height - (imageHeight * (size.width / imageWidth))) / 2.0,
+          );
+          canvas.scale(size.width / imageWidth, size.width / imageWidth);
+        } else {
+          canvas.translate(
+            (size.width - (imageWidth * (size.height / imageHeight))) / 2.0,
+            0.0,
+          );
+          canvas.scale(size.height / imageHeight, size.height / imageHeight);
+        }
+        break;
+      case BoxFit.fill:
+        canvas.scale(size.width / imageWidth, size.height / imageHeight);
+        break;
+      case BoxFit.fitWidth:
+        canvas.translate(
+          0.0,
+          (size.height - (imageHeight * (size.width / imageWidth))) / 2.0,
+        );
+        canvas.scale(size.width / imageWidth, size.width / imageWidth);
+        break;
+      case BoxFit.fitHeight:
+        canvas.translate(
+          (size.width - (imageWidth * (size.height / imageHeight))) / 2.0,
+          0.0,
+        );
+        canvas.scale(size.height / imageHeight, size.height / imageHeight);
+        break;
+      case BoxFit.none:
+        canvas.translate(
+          (size.width - imageWidth) / 2.0,
+          (size.height - imageHeight) / 2.0,
+        );
+        break;
+      case BoxFit.scaleDown:
+        if (imageWidth > size.width || imageHeight > size.height) {
+          if (imageWidth / imageHeight >= size.width / size.height) {
+            canvas.translate(
+              0.0,
+              (size.height - (imageHeight * (size.width / imageWidth))) / 2.0,
+            );
+            canvas.scale(size.width / imageWidth, size.width / imageWidth);
+          } else {
+            canvas.translate(
+              (size.width - (imageWidth * (size.height / imageHeight))) / 2.0,
+              0.0,
+            );
+            canvas.scale(size.height / imageHeight, size.height / imageHeight);
+          }
+        }
+        break;
+      default:
+    }
+    return child;
+  }
   Widget drawShape() {
     Widget finalStack;
     List<Widget> theStackElements = [];
@@ -309,8 +411,8 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       frameItem.shapes.forEach((ShapeEntity shape) {
         final path = this.buildPath(shape);
         Widget container = Container(
-          width: shape.rect.width/3,
-          height: shape.rect.height/3,
+          width: shape.rect.width,
+          height: shape.rect.height,
           color: colorFromFill(shape.styles.fill, frameItem.alpha),
         );
 
