@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:svgaplayer_flutter/svgaplayer_flutter.dart';
+import './transition_sample.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,7 +9,21 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
+class _MyAppState extends State<MyApp> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: new Home(),
+    );
+  }
+}
+
+class Home extends StatefulWidget {
+  @override
+  createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> with TickerProviderStateMixin {
   SVGAAnimationController animationController;
 
   @override
@@ -34,18 +49,28 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         .repeat()
         .whenComplete(() => this.animationController.videoItem = null);
   }
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('SVGA sample'),
-        ),
-        body: Container(
-          child: SVGAImage(this.animationController),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('SVGA sample'),
+      ),
+      body: Column(
+        children: <Widget>[
+          Container(
+            width: 500,
+            height: 500,
+            child: SVGAImage(this.animationController),
+          ),
+          RaisedButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => TransitionSamplePage()));
+            },
+            child: Text('Transition sample'),
+          ),
+        ],
       ),
     );
   }
+
 }
