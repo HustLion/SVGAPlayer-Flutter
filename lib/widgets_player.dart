@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'proto/svga.pbserver.dart';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as m;
 import 'package:path_drawing/path_drawing.dart';
 
 class SVGAWidgets extends StatefulWidget {
@@ -124,9 +124,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       height: treeData.params.viewBoxHeight,
       width: treeData.params.viewBoxWidth,
 //      color: Colors.blueAccent,
-      child: Stack(
-        children: drawShape(),
-      ),
+      child: drawShape(),
     );
   }
   static const _validMethods = 'MLHVCSQRZmlhvcsqrz';
@@ -296,7 +294,8 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
             (fill.b * 255).toInt(),
           );
   }
-  List<Widget> drawShape() {
+  Widget drawShape() {
+    Widget finalStack;
     List<Widget> theStackElements = [];
     treeData.sprites.forEach((sprite) {
       if (sprite.imageKey != null &&
@@ -307,23 +306,41 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       if (frameItem.shapes == null || frameItem.shapes.length == 0) return;
 //      canvas.save();
 
-      if (frameItem.hasTransform()) {
-        // TODO calculate transform
-      }
       frameItem.shapes.forEach((ShapeEntity shape) {
         final path = this.buildPath(shape);
-        var container = Container(
+        Widget container = Container(
           width: shape.rect.width/3,
           height: shape.rect.height/3,
           color: colorFromFill(shape.styles.fill, frameItem.alpha),
         );
-        theStackElements.add(container);
 
         if (shape.hasTransform() || frameItem.hasClipPath()) {
 //          canvas.save();
         }
         if (shape.hasTransform()) {
           // TODO do shape transform
+          var shapeMatrix = Float64List.fromList([
+            shape.transform.a,
+            shape.transform.b,
+            0.0,
+            0.0,
+            shape.transform.c,
+            shape.transform.d,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            shape.transform.tx,
+            shape.transform.ty,
+            0.0,
+            1.0
+          ].toList());
+//          container = m.Transform(
+//            transform: Matrix4.fromFloat64List(shapeMatrix),
+//            child: container,
+//          );
         }
         if (frameItem.hasClipPath()) {
           // TODO get another clipPath
@@ -332,10 +349,37 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
         if (shape.hasTransform() || frameItem.hasClipPath()) {
 //          canvas.restore();
         }
+        theStackElements.add(container);
       });
-//      canvas.restore();
+      finalStack = Stack(
+        children: theStackElements,
+      );
+      if (frameItem.hasTransform()) {
+        var matrix = Float64List.fromList([
+          frameItem.transform.a,
+          frameItem.transform.b,
+          0.0,
+          0.0,
+          frameItem.transform.c,
+          frameItem.transform.d,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          frameItem.transform.tx,
+          frameItem.transform.ty,
+          0.0,
+          1.0
+        ].toList());
+//        finalStack = m.Transform(
+//          transform: Matrix4.fromFloat64List(matrix),
+//          child: finalStack,
+//        );
+      }
     });
-    return theStackElements;
+    return finalStack;
   }
 }
 
