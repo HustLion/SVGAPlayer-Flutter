@@ -41,7 +41,10 @@ class _TransitionSamplePageState extends State<TransitionSamplePage> with Ticker
         child: Container(
           height: 1624 / 3,
           width: 750 / 3,
-          child: SVGAWidgets(animationController)
+          child: SVGAWidgets(animationController,
+            width: 750 / 3,
+            height: 1624 / 3,
+          )
         ),
       ),
 

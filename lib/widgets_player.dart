@@ -134,7 +134,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
     return Container(
       height: treeData.params.viewBoxHeight,
       width: treeData.params.viewBoxWidth,
-//      color: Colors.blueAccent,
+      color: m.Colors.green,
       child: scaleToFit(child: drawShape()),
     );
   }
