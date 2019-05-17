@@ -138,7 +138,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
     return Container(
       height: treeData.params.viewBoxHeight,
       width: treeData.params.viewBoxWidth,
-//      color: m.Colors.green,
+      color: m.Colors.green,
       child: drawShape(),
     );
   }
@@ -432,27 +432,27 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       double top = 0;
       Matrix4 matrix4 = Matrix4.identity();
       Color fillColor;
-//      if (frameItem.hasTransform()) {
-//        var matrix = Float64List.fromList([
-//          frameItem.transform.a,
-//          frameItem.transform.b,
-//          0.0,
-//          0.0,
-//          frameItem.transform.c,
-//          frameItem.transform.d,
-//          0.0,
-//          0.0,
-//          0.0,
-//          0.0,
-//          1.0,
-//          0.0,
-//          frameItem.transform.tx,
-//          frameItem.transform.ty,
-//          0.0,
-//          1.0
-//        ].toList());
+      if (frameItem.hasTransform()) {
+        var matrix = Float64List.fromList([
+          frameItem.transform.a,
+          frameItem.transform.b,
+          0.0,
+          0.0,
+          frameItem.transform.c,
+          frameItem.transform.d,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          frameItem.transform.tx,
+          frameItem.transform.ty,
+          0.0,
+          1.0
+        ].toList());
 //        matrix4 *= Matrix4.fromFloat64List(matrix);
-//      }
+      }
       frameItem.shapes.forEach((ShapeEntity shape) {
         final path = this.buildPath(shape);
         fillColor = colorFromFill(shape.styles.fill, frameItem.alpha);
@@ -461,28 +461,28 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
         left = shape.rect.x;
         top = shape.rect.y;
         if (shape.hasTransform()) {
-          width *= shape.transform.a;
-          height *= shape.transform.d;
-          left += shape.transform.tx;
-          top += shape.transform.ty;
-//          var shapeMatrix = Float64List.fromList([
-//            shape.transform.a,
-//            shape.transform.b,
-//            0.0,
-//            0.0,
-//            shape.transform.c,
-//            shape.transform.d,
-//            0.0,
-//            0.0,
-//            0.0,
-//            0.0,
-//            1.0,
-//            0.0,
-//            shape.transform.tx,
-//            shape.transform.ty,
-//            0.0,
-//            1.0
-//          ].toList());
+//          width *= shape.transform.a;
+//          height *= shape.transform.d;
+//          left += shape.transform.tx;
+//          top += shape.transform.ty;
+          var shapeMatrix = Float64List.fromList([
+            shape.transform.a,
+            shape.transform.b,
+            0.0,
+            0.0,
+            shape.transform.c,
+            shape.transform.d,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            shape.transform.tx,
+            shape.transform.ty,
+            0.0,
+            1.0
+          ].toList());
 //          matrix4 *= Matrix4.fromFloat64List(shapeMatrix);
         }
         if (frameItem.hasClipPath()) {
@@ -497,33 +497,34 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       });
       if (frameItem.hasTransform()) {
         // from object space to flutter screen space
-        width *= frameItem.transform.a;
-        height *= frameItem.transform.d;
-        left += frameItem.transform.tx / frameItem.transform.a;
-        top += frameItem.transform.ty / frameItem.transform.d;
+//        width *= frameItem.transform.a;
+//        height *= frameItem.transform.d;
+//        left += frameItem.transform.tx / frameItem.transform.a;
+//        top += frameItem.transform.ty / frameItem.transform.d;
       }
-      Widget container = Positioned(
-        width: width * xScale,
-        height: height * yScale,
-        left: left * xScale,
-        top: top * yScale,
-        child: Container(
-          color: fillColor,
-          child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
-        ),
-      );
-//      Widget containerMatrix = m.Transform(
-//        transform: matrix4,
+//      Widget container = Positioned(
+//        width: width * xScale,
+//        height: height * yScale,
+//        left: left * xScale,
+//        top: top * yScale,
 //        child: Container(
-//          width: width * xScale,
-//          height: height * yScale,
 //          color: fillColor,
 //          child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
 //        ),
 //      );
+      Widget containerMatrix = m.Transform(
+        transform: matrix4,
+        child: Container(
+          width: width * xScale,
+          height: height * yScale,
+          color: fillColor,
+          child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
+        ),
+      );
 //      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${container}');
-      theStackElements.add(container);
-//      theStackElements.add(containerMatrix);
+//      theStackElements.add(container);
+      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${containerMatrix}');
+      theStackElements.add(containerMatrix);
     });
     finalStack = Stack(
       children: theStackElements,
