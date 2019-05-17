@@ -136,8 +136,10 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: treeData.params.viewBoxHeight,
-      width: treeData.params.viewBoxWidth,
+//      height: treeData.params.viewBoxHeight,
+//      width: treeData.params.viewBoxWidth,
+      width: widget.width,
+      height: widget.height,
       color: m.Colors.green,
       child: drawShape(),
     );
@@ -417,6 +419,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
         return;
       if (shapeCache[sprite.imageKey] == null) shapeCache[sprite.imageKey] = [];
       final frameItem = sprite.frames[this.currentFrame];
+//      print('frameItem ${frameItem}');
 //      print('painting frame ${currentFrame} for ${sprite.imageKey}');
       bool isModifyingCachedShapes = false;
       if (currentFrame > 0 && theStackElements.length > 0) {
@@ -431,6 +434,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       double height = 0;
       double left = 0;
       double top = 0;
+      // TODO change to support multiple shape
       Matrix4 matrix4 = Matrix4.identity();
       Color fillColor;
       frameItem.shapes.forEach((ShapeEntity shape) {
@@ -458,8 +462,8 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
             0.0,
             1.0,
             0.0,
-            shape.rect.x * xScale,
-            shape.rect.y * yScale,
+            shape.rect.x,
+            shape.rect.y,
             0.0,
             1.0
           ].toList()));
@@ -478,8 +482,8 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
             0.0,
             1.0,
             0.0,
-            shape.transform.tx * xScale,
-            shape.transform.ty * yScale,
+            shape.transform.tx,
+            shape.transform.ty,
             0.0,
             1.0
           ].toList());
@@ -511,11 +515,12 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
           0.0,
           1.0,
           0.0,
-          frameItem.transform.tx * xScale,
-          frameItem.transform.ty * yScale,
+          frameItem.transform.tx,
+          frameItem.transform.ty,
           0.0,
           1.0
         ].toList());
+//        print('The frametransform: $matrix');
         matrix4 *= Matrix4.fromFloat64List(matrix);
       }
 //      Widget container = Positioned(
@@ -528,24 +533,53 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
 //          child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
 //        ),
 //      );
-      print('the final matrix: \n$matrix4');
+      var scaleMatrix = Float64List.fromList([
+        xScale,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        yScale,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+
+      ].toList());
+//      print('the final matrix: \n$matrix4');
+//      matrix4 *= Matrix4.fromFloat64List(scaleMatrix);
+//      matrix4.setEntry(0, 3, matrix4.entry(0, 3) * xScale);
+//      matrix4.setEntry(1, 3, matrix4.entry(1, 3) * yScale);
+//      print('the final matrix: \n$matrix4');
       Widget containerMatrix = m.Transform(
         transform: matrix4,
         child: Container(
-          width: width * xScale,
-          height: height * yScale,
+//          width: width * xScale,
+//          height: height * yScale,
+          width: width,
+          height: height,
           color: fillColor,
           child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
         ),
       );
 //      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${container}');
 //      theStackElements.add(container);
-      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${containerMatrix}');
+//      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${containerMatrix}');
       theStackElements.add(containerMatrix);
     });
     finalStack = Stack(
       children: theStackElements,
     );
+//    finalStack = m.Transform(
+//      transform: Matrix4.diagonal3Values(xScale, yScale, 1),
+//      child: finalStack,
+//    );
     return finalStack;
   }
 }
