@@ -489,11 +489,6 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
           // TODO get another clipPath
 //          canvas.clipPath(this.buildDPath(frameItem.clipPath));
         }
-//        container = Positioned(
-//          left: -shape.rect.x,
-//          top: -shape.rect.y,
-//          child: container,
-//        );
       });
       if (frameItem.hasTransform()) {
         // from object space to flutter screen space
@@ -536,41 +531,13 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       print('the final matrix: \n$matrix4');
       Widget containerMatrix = m.Transform(
         transform: matrix4,
-//        transform: objMatrx,
         child: Container(
           width: width * xScale,
           height: height * yScale,
-//          width: width,
-//          width: 300,
-//          height: height,
           color: fillColor,
           child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
         ),
       );
-//      containerMatrix = m.Transform.translate(
-////        transform: matrix4,
-//      offset: m.Offset(0, 0),
-//        child: Container(
-////          width: width * xScale,
-////          height: height * yScale,
-////          width: width,
-//          width: 300,
-//          height: height,
-//          color: fillColor,
-//          child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
-//        ),
-//      );
-//      containerMatrix = Container(
-//        width: 30,
-//        height: 20,
-//        color: m.Colors.yellow,
-//        child: Container(
-//          color: fillColor,
-//          width: 40,
-//          height: 10,
-//
-//        ),
-//      );
 //      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${container}');
 //      theStackElements.add(container);
       print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${containerMatrix}');
