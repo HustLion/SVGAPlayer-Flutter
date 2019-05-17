@@ -313,6 +313,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
   double yScale = 1;
   Widget scaleToFit({Widget child, Canvas canvas}) {
     Size size = m.Size(widget.width, widget.height);
+    print('scale: $size');
     final double imageWidth = treeData.params.viewBoxWidth.toDouble();
     final double imageHeight = treeData.params.viewBoxHeight.toDouble();
     if (imageWidth == 0.0 ||
@@ -465,6 +466,30 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
 //          height *= shape.transform.d;
 //          left += shape.transform.tx;
 //          top += shape.transform.ty;
+          var objMatrx = Matrix4.fromFloat64List(Float64List.fromList([
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            shape.rect.x * xScale,
+            shape.rect.y * yScale,
+            0.0,
+            1.0
+          ].toList()));
+//          var objMatrx = Matrix4.translationValues(left * xScale, top * yScale, 0);
+//          matrix4 *= objMatrx;
+//          print('$left, $top, $width, $height, $xScale, $yScale objMatrix ${objMatrx}');
+//          objMatrx = Matrix4.translationValues(shape.rect.x, shape.rect.y, 0);
+          matrix4 *= objMatrx;
+//          print('objMatrix ${objMatrx}');
           var shapeMatrix = Float64List.fromList([
             shape.transform.a,
             shape.transform.b,
@@ -514,13 +539,42 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
 //      );
       Widget containerMatrix = m.Transform(
         transform: matrix4,
+//        transform: objMatrx,
         child: Container(
           width: width * xScale,
           height: height * yScale,
+//          width: width,
+//          width: 300,
+//          height: height,
           color: fillColor,
           child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
         ),
       );
+      print('${m.MediaQuery.of(context).size.width}');
+//      containerMatrix = m.Transform.translate(
+////        transform: matrix4,
+//      offset: m.Offset(0, 0),
+//        child: Container(
+////          width: width * xScale,
+////          height: height * yScale,
+////          width: width,
+//          width: 300,
+//          height: height,
+//          color: fillColor,
+//          child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
+//        ),
+//      );
+//      containerMatrix = Container(
+//        width: 30,
+//        height: 20,
+//        color: m.Colors.yellow,
+//        child: Container(
+//          color: fillColor,
+//          width: 40,
+//          height: 10,
+//
+//        ),
+//      );
 //      print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${container}');
 //      theStackElements.add(container);
       print('painting frame ${currentFrame} for ${sprite.imageKey} and stats ${containerMatrix}');
