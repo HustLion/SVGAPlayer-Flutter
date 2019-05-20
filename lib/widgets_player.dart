@@ -515,8 +515,8 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
           0.0,
           1.0,
           0.0,
-          frameItem.transform.tx,
-          frameItem.transform.ty,
+          frameItem.transform.tx / frameItem.transform.a,
+          frameItem.transform.ty / frameItem.transform.d,
           0.0,
           1.0
         ].toList());
@@ -556,7 +556,7 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
 //      matrix4 *= Matrix4.fromFloat64List(scaleMatrix);
 //      matrix4.setEntry(0, 3, matrix4.entry(0, 3) * xScale);
 //      matrix4.setEntry(1, 3, matrix4.entry(1, 3) * yScale);
-//      print('the final matrix: \n$matrix4');
+      print('the final matrix: \n$matrix4');
       Widget containerMatrix = m.Transform(
         transform: matrix4,
         child: Container(
