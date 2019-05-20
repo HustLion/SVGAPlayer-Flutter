@@ -554,16 +554,16 @@ class _SVGAWidgetsTreeState extends State<SVGAWidgetsTree> {
       ].toList());
 //      print('the final matrix: \n$matrix4');
 //      matrix4 *= Matrix4.fromFloat64List(scaleMatrix);
-//      matrix4.setEntry(0, 3, matrix4.entry(0, 3) * xScale);
-//      matrix4.setEntry(1, 3, matrix4.entry(1, 3) * yScale);
+      matrix4.setEntry(0, 3, matrix4.entry(0, 3) * xScale);
+      matrix4.setEntry(1, 3, matrix4.entry(1, 3) * yScale);
       print('the final matrix: \n$matrix4');
       Widget containerMatrix = m.Transform(
         transform: matrix4,
         child: Container(
-//          width: width * xScale,
-//          height: height * yScale,
-          width: width,
-          height: height,
+          width: width * xScale,
+          height: height * yScale,
+//          width: width,
+//          height: height,
           color: fillColor,
           child: Center(child: Text('This is layer ${sprite.imageKey} with flutter widgets.')),
         ),
